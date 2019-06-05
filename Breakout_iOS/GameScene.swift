@@ -9,57 +9,69 @@
 import SpriteKit
 import GameplayKit
 
-class GameScene: SKScene {
+class GameScene: SKScene, SKPhysicsContactDelegate {
     
-    var coordinates: [Double] = [0.0, 0.0, 0.0, 0.0, 0.0, 0.0]
-    
+    let amountOfBlocksPerRow = 1
+    let amountOfBlocksPerCollumn = 4
+   
     
     override func didMove(to view: SKView) {
+        physicsWorld.contactDelegate = self
+        physicsWorld.gravity = CGVector(dx: 0, dy: 0)
+        self.physicsBody = SKPhysicsBody(edgeLoopFrom: self.frame)
+        self.physicsBody?.collisionBitMask = 1
+        self.physicsBody?.categoryBitMask = 2
+        Utils.shared.setUpPhysicsbody(body: self.physicsBody, pinned: true, setRestitutionTo: 1)
         
-        var i = 0
-        for _ in 0...5 {
-            coordinates[i] = Double((UIScreen.main.bounds.width / 10)) * Double(i)
-            i += 1
+        Utils.shared.setUpXCoordinates(amountOfBlocksPerCollumn: amountOfBlocksPerCollumn, amountOfBlocksPerRow: amountOfBlocksPerRow)
+        
+        for outerIndex in 0..<amountOfBlocksPerCollumn {
+            for index in 0..<amountOfBlocksPerRow {
+                let node = Utils.shared.createBlock(index: index, outerIndex: outerIndex)
+                self.addChild(node)
+            }
         }
         
-        //        // Get  label node from scene and store it for use later
-        //        self.label = self.childNode(withName: "//helloLabel") as? SKLabelNode
-        //        if let label = self.label {
-        //            label.alpha = 0.0
-        //            label.run(SKAction.fadeIn(withDuration: 2.0))
-        //        }
         
-        // Create shape node to use during mouse interaction
-        i = 0
-        for _ in 0...1 {
-            let node = Block(texture: nil, color: UIColor.black, size: CGSize(width: 100, height: 100), x: coordinates[i], y: Double(UIScreen.main.bounds.height))
-            i += 1
-            self.addChild(node)
-        }
+        let mainBall = SKShapeNode(circleOfRadius: 10)
+        mainBall.position = CGPoint(x: Int(UIScreen.main.bounds.width) / 2, y: 50)
+        mainBall.fillColor = UIColor.red
+        mainBall.physicsBody = SKPhysicsBody(circleOfRadius: 10)
+        Utils.shared.setUpPhysicsbody(body: mainBall.physicsBody, pinned: false, setRestitutionTo: 1)
         
-//        if let spinnyNode = self.spinnyNode {
-//            spinnyNode.lineWidth = 2.5
-//
-//            spinnyNode.run(SKAction.repeatForever(SKAction.rotate(byAngle: CGFloat(Double.pi), duration: 1)))
-//            spinnyNode.run(SKAction.sequence([SKAction.wait(forDuration: 0.5),
-//                                              SKAction.fadeOut(withDuration: 0.5),
-//                                              SKAction.removeFromParent()]))
-//        }
+        
+        mainBall.physicsBody?.collisionBitMask = 2
+        mainBall.physicsBody?.categoryBitMask = 1
+        
+        
+        
+        addChild(mainBall)
+        mainBall.physicsBody?.applyImpulse(CGVector(dx: 0.5, dy: 3))
+        let plate = Block(texture: nil, color: UIColor.yellow, size: CGSize(width: 100, height: 16), x: Int(UIScreen.main.bounds.width) / 2, y: 8)
+        plate.physicsBody = SKPhysicsBody(rectangleOf: CGSize(width: Int(UIScreen.main.bounds.width), height: 16))
+        addChild(plate)
+        Utils.shared.setUpPhysicsbody(body: plate.physicsBody, pinned: true, setRestitutionTo: 1)
     }
     
+    func didBegin(_ contact: SKPhysicsContact) {
+        if contact.bodyA.node?.name == "block" {
+            contact.bodyA.node?.removeFromParent()
+        }
+    }
+
     
     func touchDown(atPoint pos : CGPoint) {
-
+        
     }
     
     func touchMoved(toPoint pos : CGPoint) {
-
+        
     }
     
     func touchUp(atPoint pos : CGPoint) {
-
+        
     }
-
+    
     override func touchesMoved(_ touches: Set<UITouch>, with event: UIEvent?) {
         for t in touches { self.touchMoved(toPoint: t.location(in: self)) }
     }
