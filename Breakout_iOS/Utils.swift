@@ -15,13 +15,13 @@ class Utils {
     var blockWidth = 0
     static let shared: Utils = Utils()
     
-    func setUpPhysicsbody(body: SKPhysicsBody?, pinned: Bool, setRestitutionTo restitution: CGFloat) {
+    func setUpPhysicsbody(body: SKPhysicsBody?, isDynamic: Bool, setRestitutionTo restitution: CGFloat) {
         if let body = body {
             body.restitution = restitution
+            body.isDynamic = isDynamic
             body.friction = 0
             body.affectedByGravity = false
             body.allowsRotation = false
-            body.pinned = pinned
             body.linearDamping = 0
             body.angularDamping = 0
         }
@@ -42,10 +42,9 @@ class Utils {
             xCoordinates[index] += (blockWidth) / 2
         }
         blockWidth -= 3
-        print(xCoordinates)
     }
     
     func createBlock(index: Int, outerIndex: Int) -> SKSpriteNode {
-        return Block(texture: nil, color: UIColor.white, size: CGSize(width: blockWidth - 1, height: 20), x: xCoordinates[index], y: yCoordinates[outerIndex])
+        return Block(texture: nil, color: UIColor.white, size: CGSize(width: blockWidth - 1, height: 20), x: xCoordinates[index], y: yCoordinates[outerIndex], name: "block")
     }
 }

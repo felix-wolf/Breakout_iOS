@@ -11,13 +11,12 @@ import Foundation
 
 class Block: SKSpriteNode {
     
-    init(texture: SKTexture?, color: UIColor, size: CGSize, x: Int, y: Int) {
+    init(texture: SKTexture?, color: UIColor, size: CGSize, x: Int, y: Int, name: String) {
         super.init(texture: texture, color: color, size: size)
-        self.name = "block"
+        self.name = name
         self.position = CGPoint(x: x, y: y)
         self.physicsBody = SKPhysicsBody(rectangleOf: size)
-        Utils.shared.setUpPhysicsbody(body: self.physicsBody, pinned: true, setRestitutionTo: 1)
-       
+        Utils.shared.setUpPhysicsbody(body: self.physicsBody, isDynamic: false, setRestitutionTo: 1)
         self.physicsBody?.contactTestBitMask = 3
         self.physicsBody?.categoryBitMask = 2
         self.physicsBody?.collisionBitMask = 0
