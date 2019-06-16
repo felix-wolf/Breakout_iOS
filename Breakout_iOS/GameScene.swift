@@ -19,16 +19,22 @@ class GameScene: SKScene, SKPhysicsContactDelegate {
     
     let amountOfBlocksPerRow = 6
     let amountOfBlocksPerCollumn = 4
-    var mainBall = SKShapeNode()
     var fingerOnPlate = false
     
     override func didMove(to view: SKView) {
         physicsWorld.contactDelegate = self
         physicsWorld.gravity = CGVector(dx: 0, dy: 0)
+        self.name = "frame"
         self.physicsBody = SKPhysicsBody(edgeLoopFrom: self.frame)
         self.physicsBody?.categoryBitMask = 2
         self.physicsBody?.collisionBitMask = 1
         self.physicsBody?.contactTestBitMask = 3
+        let bottomRect = CGRect(x: frame.origin.x, y: frame.origin.y, width: frame.size.width, height: 1)
+        let bottom = SKNode()
+        bottom.name = "bottom"
+        bottom.physicsBody = SKPhysicsBody(edgeLoopFrom: bottomRect)
+        addChild(bottom)
+        
         Utils.shared.setUpPhysicsbody(body: self.physicsBody, isDynamic: false, setRestitutionTo: 1)
         
         Utils.shared.setUpXCoordinates(amountOfBlocksPerCollumn: amountOfBlocksPerCollumn, amountOfBlocksPerRow: amountOfBlocksPerRow)
@@ -42,22 +48,30 @@ class GameScene: SKScene, SKPhysicsContactDelegate {
         let mainBall = Ball(radius: 10, name: "ball")
         addChild(mainBall)
         mainBall.physicsBody?.applyImpulse(CGVector(dx: 0, dy: 3))
-        
-        let plate = Block(texture: nil, color: UIColor.yellow, size: CGSize(width: 100, height: 20), x: Int(UIScreen.main.bounds.width) / 2, y: 40, name: "plate")
-        plate.physicsBody = SKPhysicsBody(rectangleOf: CGSize(width: Int(UIScreen.main.bounds.width), height: 16))
+        let plate = Block(texture: nil, color: UIColor.yellow, width: 100, height: 30, x: Int(UIScreen.main.bounds.width) / 2, y: 10, name: "plate")
         addChild(plate)
         Utils.shared.setUpPhysicsbody(body: plate.physicsBody, isDynamic: false, setRestitutionTo: 1)
     }
     
     func didBegin(_ contact: SKPhysicsContact) {
+        
         if contact.bodyA.node?.name == "block" {
             contact.bodyA.node?.removeFromParent()
         }
-        if contact.bodyB.collisionBitMask == 1 || contact.bodyA.collisionBitMask == 1 {
-            print("Frame hit")
+        if contact.bodyA.node?.name == "bottom" {
+            print("GameOver")
         }
         if contact.bodyA.node?.name == "plate" {
             print("plate hit")
+            let plate = childNode(withName: "plate")!
+            let ball = childNode(withName: "ball")!
+//            let xVelo = ball.physicsBody?.velocity.dx
+//            let yVelo = ball.physicsBody?.velocity.dy
+//            ball.physicsBody?.velocity = CGVector(dx: 0, dy: 0)
+            let diff = (plate.position.x - ball.position.x) / 10
+//            ball.physicsBody?.applyImpulse(CGVector(dx: -diff * xVelo!, dy: yVelo!))
+            ball.physicsBody?.applyImpulse(CGVector(dx: -diff, dy: 0))
+            
         }
     }
 
@@ -91,6 +105,19 @@ class GameScene: SKScene, SKPhysicsContactDelegate {
     
     
     override func update(_ currentTime: TimeInterval) {
+        let ball = childNode(withName: "ball")!
+        let maxSpeed: CGFloat = 300.0
+        let xSpeed = ball.physicsBody?.velocity.dx
+        let ySpeed = ball.physicsBody?.velocity.dy
+        let speed = xSpeed! + ySpeed!
+        
+        if speed > maxSpeed {
+            ball.physicsBody?.linearDamping = 0.2
+        } else {
+//            ball.physicsBody?.velocity.dx += (ball.physicsBody?.velocity.dx)! / 100
+//            ball.physicsBody?.velocity.dy += (ball.physicsBody?.velocity.dy)! / 100
+            ball.physicsBody?.linearDamping = 0.0
+        }
         // Called before each frame is rendered
     }
 }

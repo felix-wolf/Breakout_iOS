@@ -11,15 +11,14 @@ import Foundation
 
 class Block: SKSpriteNode {
     
-    init(texture: SKTexture?, color: UIColor, size: CGSize, x: Int, y: Int, name: String) {
-        super.init(texture: texture, color: color, size: size)
+    init(texture: SKTexture?, color: UIColor, width: Double, height: Double, x: Int, y: Int, name: String) {
+        super.init(texture: texture, color: color, size: CGSize(width: width, height: height))
         self.name = name
         self.position = CGPoint(x: x, y: y)
-        self.physicsBody = SKPhysicsBody(rectangleOf: size)
+        self.physicsBody = SKPhysicsBody(rectangleOf: CGSize(width: width, height: height))
         Utils.shared.setUpPhysicsbody(body: self.physicsBody, isDynamic: false, setRestitutionTo: 1)
-        self.physicsBody?.contactTestBitMask = 3
         self.physicsBody?.categoryBitMask = 2
-        self.physicsBody?.collisionBitMask = 0
+        self.physicsBody?.collisionBitMask = 0        
     }
     
     required init?(coder aDecoder: NSCoder) {

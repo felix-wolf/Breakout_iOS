@@ -45,6 +45,6 @@ class Utils {
     }
     
     func createBlock(index: Int, outerIndex: Int) -> SKSpriteNode {
-        return Block(texture: nil, color: UIColor.white, size: CGSize(width: blockWidth - 1, height: 20), x: xCoordinates[index], y: yCoordinates[outerIndex], name: "block")
+        return Block(texture: nil, color: UIColor.white, width: Double(blockWidth - 1), height: 20, x: xCoordinates[index], y: yCoordinates[outerIndex], name: "block")
     }
 }

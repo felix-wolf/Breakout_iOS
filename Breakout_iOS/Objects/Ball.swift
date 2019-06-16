@@ -23,6 +23,7 @@ class Ball: SKShapeNode {
         Utils.shared.setUpPhysicsbody(body: self.physicsBody, isDynamic: true, setRestitutionTo: 1)
         self.physicsBody?.categoryBitMask = 1
         self.physicsBody?.collisionBitMask = 2
+        self.physicsBody?.contactTestBitMask = 3
         self.name = name
         
         
