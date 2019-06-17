@@ -65,12 +65,10 @@ class GameScene: SKScene, SKPhysicsContactDelegate {
             print("plate hit")
             let plate = childNode(withName: "plate")!
             let ball = childNode(withName: "ball")!
-//            let xVelo = ball.physicsBody?.velocity.dx
-//            let yVelo = ball.physicsBody?.velocity.dy
-//            ball.physicsBody?.velocity = CGVector(dx: 0, dy: 0)
+            ball.physicsBody?.isDynamic = false
+            ball.physicsBody?.isDynamic = true
             let diff = (plate.position.x - ball.position.x) / 10
-//            ball.physicsBody?.applyImpulse(CGVector(dx: -diff * xVelo!, dy: yVelo!))
-            ball.physicsBody?.applyImpulse(CGVector(dx: -diff, dy: 0))
+            ball.physicsBody?.applyImpulse(CGVector(dx: -diff, dy: 3))
             
         }
     }
@@ -106,18 +104,13 @@ class GameScene: SKScene, SKPhysicsContactDelegate {
     
     override func update(_ currentTime: TimeInterval) {
         let ball = childNode(withName: "ball")!
-        let maxSpeed: CGFloat = 300.0
-        let xSpeed = ball.physicsBody?.velocity.dx
-        let ySpeed = ball.physicsBody?.velocity.dy
-        let speed = xSpeed! + ySpeed!
-        
-        if speed > maxSpeed {
-            ball.physicsBody?.linearDamping = 0.2
-        } else {
-//            ball.physicsBody?.velocity.dx += (ball.physicsBody?.velocity.dx)! / 100
-//            ball.physicsBody?.velocity.dy += (ball.physicsBody?.velocity.dy)! / 100
-            ball.physicsBody?.linearDamping = 0.0
-        }
-        // Called before each frame is rendered
+        //TODO: Ball vom stoppen hindern
+//        if (ball.physicsBody?.velocity.dy)! < CGFloat(1) {
+//            if (ball.physicsBody?.velocity.dy)! < CGFloat(0) {
+//                ball.physicsBody?.applyImpulse(CGVector(dx: 0, dy: 1))
+//            } else {
+//                ball.physicsBody?.applyImpulse(CGVector(dx: 0, dy: -1))
+//            }
+//        }
     }
 }
