@@ -8,12 +8,12 @@
 
 import Foundation
 import SpriteKit
-class Utils {
+struct Utils {
     
     var xCoordinates: [Int] = []
     var yCoordinates: [Int] = []
     var blockWidth = 0
-    static let shared: Utils = Utils()
+    static var shared: Utils = Utils()
     
     func setUpPhysicsbody(body: SKPhysicsBody?, isDynamic: Bool, setRestitutionTo restitution: CGFloat) {
         if let body = body {
@@ -27,7 +27,7 @@ class Utils {
         }
     }
     
-    func setUpXCoordinates(amountOfBlocksPerCollumn: Int, amountOfBlocksPerRow: Int) {
+    mutating func setUpXCoordinates(amountOfBlocksPerCollumn: Int, amountOfBlocksPerRow: Int) {
         
         for outerIndex in 0..<amountOfBlocksPerCollumn {
             let yValue = Int(UIScreen.main.bounds.height) - (outerIndex * 50)
