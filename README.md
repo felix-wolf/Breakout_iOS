@@ -1,2 +1,2 @@
-# Breakout_iOS
-Breakout game written in Swift for iOS
+# Breakout
+A classic Breakout game written in Swift for iOS
