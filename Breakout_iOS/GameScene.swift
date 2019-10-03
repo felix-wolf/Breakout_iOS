@@ -12,8 +12,7 @@ import GameplayKit
 class GameScene: SKScene, SKPhysicsContactDelegate {
     
     var xVelo: CGFloat = 0
-    var customSpeed: CGFloat = 350
-    
+    var customSpeed: CGFloat = 400
     
     let ballCategory: UInt32 = 0x1 << 0
     let bottomCategory: UInt32 = 0x1 << 1
@@ -51,17 +50,17 @@ class GameScene: SKScene, SKPhysicsContactDelegate {
         addChild(ball)
         ball.physicsBody?.velocity = CGVector(dx: customSpeed / 2, dy: customSpeed / 2)
         
-        
         let plate = Block(texture: nil, color: UIColor.yellow, width: 80, height: 15, x: Int(UIScreen.main.bounds.width) / 2, y: 20, name: "plate")
         addChild(plate)
         Utils.shared.setUpPhysicsbody(body: plate.physicsBody, isDynamic: false, setRestitutionTo: 1)
     }
     
-    
     func didBegin(_ contact: SKPhysicsContact) {
-        
         checkForGlitch()
         
+        guard let ball = childNode(withName: "ball") else { return }
+        
+        xVelo = ball.physicsBody!.velocity.dx
         
         switch contact.bodyA.node?.name {
         case "block":
@@ -126,15 +125,12 @@ class GameScene: SKScene, SKPhysicsContactDelegate {
         fingerOnPlate = false
     }
     
-    
     override func update(_ currentTime: TimeInterval) {
         customSpeed += 1/20
-        
         //        guard let ball = childNode(withName: "ball") else { return }
         //        guard let physicsBody = ball.physicsBody else {return}
         //        physicsBody.velocity.dx *= 1.00005
         //        physicsBody.velocity.dy *= 1.00005
-        
     }
     
     func checkForGlitch() {
