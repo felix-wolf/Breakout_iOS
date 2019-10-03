@@ -30,7 +30,7 @@ class Utils {
     func setUpXCoordinates(amountOfBlocksPerCollumn: Int, amountOfBlocksPerRow: Int) {
         
         for outerIndex in 0..<amountOfBlocksPerCollumn {
-            let yValue = Int(UIScreen.main.bounds.height) - (outerIndex * 50)
+            let yValue = Int(UIScreen.main.bounds.height) - (outerIndex * 30)
             yCoordinates.append(yValue)
             yCoordinates[outerIndex] -= 15
         }
@@ -45,6 +45,6 @@ class Utils {
     }
     
     func createBlock(index: Int, outerIndex: Int) -> SKSpriteNode {
-        return Block(texture: nil, color: UIColor.white, width: Double(blockWidth - 1), height: 20, x: xCoordinates[index], y: yCoordinates[outerIndex], name: "block")
+        return Block(texture: nil, color: UIColor.white, width: Double(blockWidth - 1), height: 10, x: xCoordinates[index], y: yCoordinates[outerIndex], name: "block")
     }
 }
