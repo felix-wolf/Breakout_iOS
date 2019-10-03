@@ -11,6 +11,8 @@ import GameplayKit
 
 class GameScene: SKScene, SKPhysicsContactDelegate {
     
+    var xVelo: CGFloat = 0
+    var customSpeed: CGFloat = 400
     
     let ballCategory: UInt32 = 0x1 << 0
     let botvarCategory: UInt32 = 0x1 << 1
@@ -33,7 +35,7 @@ class GameScene: SKScene, SKPhysicsContactDelegate {
         self.physicsBody?.categoryBitMask = 2
         self.physicsBody?.collisionBitMask = 1
         self.physicsBody?.contactTestBitMask = 3
-        let bottomRect = CGRect(x: frame.origin.x, y: frame.origin.y, width: frame.size.width, height: 1)
+        let bottomRect = CGRect(x: frame.origin.x, y: frame.origin.y, width: frame.size.width, height: 0.1)
         let bottom = SKNode()
         bottom.name = "bottom"
         bottom.physicsBody = SKPhysicsBody(edgeLoopFrom: bottomRect)
@@ -52,15 +54,15 @@ class GameScene: SKScene, SKPhysicsContactDelegate {
         Utils.shared.setUpXCoordinates(amountOfBlocksPerCollumn: amountOfBlocksPerCollumn, amountOfBlocksPerRow: amountOfBlocksPerRow)
         for outerIndex in 0..<amountOfBlocksPerCollumn {
             for index in 0..<amountOfBlocksPerRow {
-                let node = Utils.shared.createBlock(index: index, outerIndex: outerIndex)
-                self.addChild(node)
+                self.addChild(Utils.shared.createBlock(index: index, outerIndex: outerIndex))
             }
         }
         
-        let mainBall = Ball(radius: 10, name: "ball")
-        addChild(mainBall)
-        //mainBall.physicsBody?.applyImpulse(CGVector(dx: 0, dy: 3))
-        let plate = Block(texture: nil, color: UIColor.yellow, width: 100, height: 30, x: Int(UIScreen.main.bounds.width) / 2, y: 10, name: "plate")
+        let ball = Ball(texture: nil, color: UIColor.red, width: 10, height: 10, x: Int(UIScreen.main.bounds.width) / 2, y: 50, name: "ball")
+        addChild(ball)
+        ball.physicsBody?.velocity = CGVector(dx: customSpeed / 2, dy: customSpeed / 2)
+        
+        let plate = Block(texture: nil, color: UIColor.yellow, width: 80, height: 15, x: Int(UIScreen.main.bounds.width) / 2, y: 20, name: "plate")
         addChild(plate)
         Utils.shared.setUpPhysicsbody(body: plate.physicsBody, isDynamic: false, setRestitutionTo: 1)
         
@@ -68,38 +70,56 @@ class GameScene: SKScene, SKPhysicsContactDelegate {
     }
     
     func didBegin(_ contact: SKPhysicsContact) {
+        checkForGlitch()
         
-        if contact.bodyA.node?.name == "block" {
-//            let ball = childNode(withName: "ball")!
-//            let xVelo = ball.physicsBody!.velocity.dx
-//            let yVelo = ball.physicsBody!.velocity.dy
-//            ball.physicsBody?.isDynamic = false
-//            ball.physicsBody?.isDynamic = true
-//            ball.physicsBody?.applyImpule(dx: xVelo, dy: -yVelo)
+        guard let ball = childNode(withName: "ball") else { return }
+        
+        xVelo = ball.physicsBody!.velocity.dx
+        
+        switch contact.bodyA.node?.name {
+        case "block":
             contact.bodyA.node?.removeFromParent()
-        }
-        if contact.bodyA.node?.name == "bottom" {
+            let children = self.children
+            var childrenleft = false
+            for node in children {
+                if node.name == "block" {
+                    childrenleft = true
+                }
+            }
+            if !childrenleft {
+                print("you won")
+            }
+        case "bottom":
             print("GameOver")
+        default:
+            break
         }
-        if contact.bodyA.node?.name == "plate" {
+        
+        //
+        //        if contact.bodyA.node?.name == "frame" {
+        //            guard let ball = childNode(withName: "ball") else { return }
+        //            //            let ball = childNode(withName: "ball")
+        //            if ball.position.y > 9 && ball.position.y < frame.size.height - 8 {
+        //                print(frame.size.height)
+        //                print("y-Position: \(ball.position.y)")
+        //                print("Velocity: \(ball.physicsBody!.velocity)")
+        //            }
+        //        }
+        
+        if contact.bodyB.node?.name == "plate" {
             let plate = childNode(withName: "plate")!
             let ball = childNode(withName: "ball")!
-            ball.physicsBody?.isDynamic = false
-            ball.physicsBody?.isDynamic = true
-            let diff = (plate.position.x - ball.position.x) / 10
-            ball.physicsBody?.applyImpulse(CGVector(dx: -diff, dy: 3))
+            let plateWidth = plate.frame.width
+            let diff = (plate.position.x - ball.position.x)
+            var diffInPercent = (abs(diff) / (plateWidth/2)) * 100
+            if diffInPercent > 50 { diffInPercent = 50 }
+            let xSpeed = customSpeed * (diffInPercent / 100)
+            ball.physicsBody?.velocity = CGVector(dx: diff > 0 ? -(xSpeed) : xSpeed, dy: customSpeed * ((100 - diffInPercent) / 100))
         }
     }
-
+    
     override func touchesBegan(_ touches: Set<UITouch>, with event: UIEvent?) {
-        let touch = touches.first
-        let touchLocation = touch!.location(in: self)
-        
-        if let body = physicsWorld.body(at: touchLocation) {
-            if body.node?.name == "plate" {
-                fingerOnPlate = true
-            }
-        }
+        fingerOnPlate = true
     }
     
     override func touchesMoved(_ touches: Set<UITouch>, with event: UIEvent?) {
@@ -119,17 +139,22 @@ class GameScene: SKScene, SKPhysicsContactDelegate {
         fingerOnPlate = false
     }
     
-    
     override func update(_ currentTime: TimeInterval) {
-        let ball = childNode(withName: "ball")!
-        //TODO: Ball vom stoppen hindern
-//        if (ball.physicsBody?.velocity.dy)! < CGFloat(1) {
-//            if (ball.physicsBody?.velocity.dy)! < CGFloat(0) {
-//                ball.physicsBody?.applyImpulse(CGVector(dx: 0, dy: 1))
-//            } else {
-//                ball.physicsBody?.applyImpulse(CGVector(dx: 0, dy: -1))
-//            }
-//        }
+        customSpeed += 1/20
+        //        guard let ball = childNode(withName: "ball") else { return }
+        //        guard let physicsBody = ball.physicsBody else {return}
+        //        physicsBody.velocity.dx *= 1.00005
+        //        physicsBody.velocity.dy *= 1.00005
+    }
+    
+    func checkForGlitch() {
+        guard let ball = childNode(withName: "ball") else { return }
+        
+        if ball.physicsBody?.velocity.dx == 0.0 {
+            ball.physicsBody?.velocity.dx = -xVelo
+        } else {
+            xVelo = ball.physicsBody!.velocity.dx
+        }
     }
 }
 
