@@ -9,14 +9,13 @@
 import Foundation
 import GameplayKit
 
-class WaitingForTap: GKState {
+class StartGame: GKState {
     
     var game: GameScene
     
     required init(game: GameScene) {
         self.game = game
         super.init()
-        
     }
     
     override func didEnter(from previousState: GKState?) {

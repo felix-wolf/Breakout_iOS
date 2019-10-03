@@ -23,7 +23,7 @@ class GameScene: SKScene, SKPhysicsContactDelegate {
     let amountOfBlocksPerCollumn = 4
     var fingerOnPlate = false
     lazy var gameState: GKStateMachine = GKStateMachine(states: [
-        WaitingForTap(game: self),
+        StartGame(game: self),
         Playing(game: self),
         GameOver(game: self)])
     
@@ -60,13 +60,13 @@ class GameScene: SKScene, SKPhysicsContactDelegate {
         
         let ball = Ball(texture: nil, color: UIColor.red, width: 10, height: 10, x: Int(UIScreen.main.bounds.width) / 2, y: 50, name: "ball")
         addChild(ball)
-        ball.physicsBody?.velocity = CGVector(dx: customSpeed / 2, dy: customSpeed / 2)
+//        ball.physicsBody?.velocity = CGVector(dx: customSpeed / 2, dy: customSpeed / 2)
         
         let plate = Block(texture: nil, color: UIColor.yellow, width: 80, height: 15, x: Int(UIScreen.main.bounds.width) / 2, y: 20, name: "plate")
         addChild(plate)
         Utils.shared.setUpPhysicsbody(body: plate.physicsBody, isDynamic: false, setRestitutionTo: 1)
         
-        gameState.enter(WaitingForTap.self)
+        gameState.enter(StartGame.self)
     }
     
     func didBegin(_ contact: SKPhysicsContact) {
@@ -158,12 +158,3 @@ class GameScene: SKScene, SKPhysicsContactDelegate {
     }
 }
 
-extension SKPhysicsBody {
-    func applyImpule(dx: CGFloat, dy: CGFloat) {
-        if dx + dy < 20 {
-            applyImpulse(CGVector(dx: dx, dy: dy))
-        } else {
-            applyImpule(dx: dx * 0.9, dy: dy * 0.9)
-        }
-    }
-}
