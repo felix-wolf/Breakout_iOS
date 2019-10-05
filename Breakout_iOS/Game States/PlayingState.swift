@@ -43,24 +43,14 @@ class PlayingState: BreakoutState {
         customSpeed += 1/20
     }
     
-    func didBegin(_ contact: SKPhysicsContact) {
-        print("contact")
-    }
-    
     func contact(_ contact: SKPhysicsContact) {
         checkForGlitch()
         
-        xVelo = ball.physicsBody!.velocity.dx
-        var name: String?
-        if contact.bodyA.node?.name == "ball" {
-            name = contact.bodyB.node?.name
-        } else {
-            name = contact.bodyA.node?.name
-        }
+        let name = contact.bodyA.node?.name == "ball" ? contact.bodyB.node?.name : contact.bodyA.node?.name
         
         switch name {
         case "block":
-            contact.bodyA.node?.removeFromParent()
+            name == contact.bodyA.node?.name ? contact.bodyA.node?.removeFromParent() : contact.bodyB.node?.removeFromParent()
             let children = game.children
             var childrenleft = false
             for node in children {

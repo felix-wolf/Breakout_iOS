@@ -14,7 +14,6 @@ class StartGameState: BreakoutState {
     let amountOfBlocksPerRow = 6
     let amountOfBlocksPerCollumn = 4
     
-    
     required override init(game: GameScene) {
         super.init(game: game)
     }

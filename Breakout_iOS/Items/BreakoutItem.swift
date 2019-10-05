@@ -1,5 +1,5 @@
 //
-//  BreakoutState.swift
+//  BreakoutItem.swift
 //  Breakout_iOS
 //
 //  Created by Felix Wolf on 05.10.19.
@@ -7,14 +7,11 @@
 //
 
 import Foundation
-import GameplayKit
 
-class BreakoutState : GKState {
+class BreakoutItem {
     
-    var game: GameScene
-    
-    init(game: GameScene) {
-        self.game = game
+    init() {
+        
     }
     
 }

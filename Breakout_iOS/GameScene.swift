@@ -11,10 +11,10 @@ import GameplayKit
 
 class GameScene: SKScene, SKPhysicsContactDelegate {
     
-    let ballCategory: UInt32 = 0x1 << 0
-    let botvarCategory: UInt32 = 0x1 << 1
-    let blockCategory: UInt32 = 0x1 << 2
-    let plateCategory: UInt32 = 0x1 << 3
+//    let ballCategory: UInt32 = 0x1 << 0
+//    let botvarCategory: UInt32 = 0x1 << 1
+//    let blockCategory: UInt32 = 0x1 << 2
+//    let plateCategory: UInt32 = 0x1 << 3
     var stateMachine: GKStateMachine!
     let scaleUp = SKAction.scale(to: 2.0, duration: 0.25)
     let scaleDown = SKAction.scale(to: 0, duration: 0.25)
@@ -47,6 +47,8 @@ class GameScene: SKScene, SKPhysicsContactDelegate {
     
     override func touchesBegan(_ touches: Set<UITouch>, with event: UIEvent?) {
         stateMachine.state(forClass: PlayingState.self)?.fingerOnPlate = true
+        stateMachine.enterNextState()
+
     }
     
     override func touchesMoved(_ touches: Set<UITouch>, with event: UIEvent?) {
@@ -63,7 +65,6 @@ class GameScene: SKScene, SKPhysicsContactDelegate {
     }
     
     override func touchesEnded(_ touches: Set<UITouch>, with event: UIEvent?) {
-        stateMachine.enterNextState()
         stateMachine.state(forClass: PlayingState.self)?.fingerOnPlate = false
     }
     
