@@ -11,119 +11,46 @@ import GameplayKit
 
 class GameScene: SKScene, SKPhysicsContactDelegate {
     
-    var xVelo: CGFloat = 0
-    var customSpeed: CGFloat = 400
-    
     let ballCategory: UInt32 = 0x1 << 0
     let botvarCategory: UInt32 = 0x1 << 1
     let blockCategory: UInt32 = 0x1 << 2
     let plateCategory: UInt32 = 0x1 << 3
-    
-    let amountOfBlocksPerRow = 6
-    let amountOfBlocksPerCollumn = 4
-    var fingerOnPlate = false
-    lazy var gameState: GKStateMachine = GKStateMachine(states: [
-        StartGame(game: self),
-        Playing(game: self),
-        GameOver(game: self)])
+    var stateMachine: GKStateMachine!
+    let scaleUp = SKAction.scale(to: 2.0, duration: 0.25)
+    let scaleDown = SKAction.scale(to: 0, duration: 0.25)
     
     override func didMove(to view: SKView) {
+        
+        stateMachine = GKStateMachine(states: [
+            StartGameState(game: self),
+            PlayingState(game: self),
+            GameOverState(game: self),
+            WonState(game: self)
+            ])
+        
         physicsWorld.contactDelegate = self
         physicsWorld.gravity = CGVector(dx: 0, dy: 0)
-        self.name = "frame"
-        self.physicsBody = SKPhysicsBody(edgeLoopFrom: self.frame)
-        self.physicsBody?.categoryBitMask = 2
-        self.physicsBody?.collisionBitMask = 1
-        self.physicsBody?.contactTestBitMask = 3
-        let bottomRect = CGRect(x: frame.origin.x, y: frame.origin.y, width: frame.size.width, height: 0.1)
-        let bottom = SKNode()
-        bottom.name = "bottom"
-        bottom.physicsBody = SKPhysicsBody(edgeLoopFrom: bottomRect)
-        addChild(bottom)
-        
-        
-        let gameMessage = SKSpriteNode(imageNamed: "TapToPlay")
-        gameMessage.name = "gameMessage"
-        gameMessage.position = CGPoint(x: frame.midX, y: frame.midY)
-        gameMessage.zPosition = 4
-        gameMessage.setScale(0.0)
-        addChild(gameMessage)
-        
-        Utils.shared.setUpPhysicsbody(body: self.physicsBody, isDynamic: false, setRestitutionTo: 1)
-        
-        Utils.shared.setUpXCoordinates(amountOfBlocksPerCollumn: amountOfBlocksPerCollumn, amountOfBlocksPerRow: amountOfBlocksPerRow)
-        for outerIndex in 0..<amountOfBlocksPerCollumn {
-            for index in 0..<amountOfBlocksPerRow {
-                self.addChild(Utils.shared.createBlock(index: index, outerIndex: outerIndex))
-            }
-        }
-        
-        let ball = Ball(texture: nil, color: UIColor.red, width: 10, height: 10, x: Int(UIScreen.main.bounds.width) / 2, y: 50, name: "ball")
-        addChild(ball)
-//        ball.physicsBody?.velocity = CGVector(dx: customSpeed / 2, dy: customSpeed / 2)
-        
-        let plate = Block(texture: nil, color: UIColor.yellow, width: 80, height: 15, x: Int(UIScreen.main.bounds.width) / 2, y: 20, name: "plate")
-        addChild(plate)
-        Utils.shared.setUpPhysicsbody(body: plate.physicsBody, isDynamic: false, setRestitutionTo: 1)
-        
-        gameState.enter(StartGame.self)
+        let gameOverMessage = Utils.shared.createLabel(text: "Game over!", name: "gameOver")
+        let tapToPlayMessage = Utils.shared.createLabel(text: "Tap to Play", name: "tapToPlay")
+        let youWonMessage = Utils.shared.createLabel(text: "You won!", name: "youWon")
+        addChild(youWonMessage)
+        addChild(tapToPlayMessage)
+        addChild(gameOverMessage)
+        setupWorld()
+        stateMachine.enter(StartGameState.self)
     }
     
     func didBegin(_ contact: SKPhysicsContact) {
-        checkForGlitch()
-        
-        guard let ball = childNode(withName: "ball") else { return }
-        
-        xVelo = ball.physicsBody!.velocity.dx
-        
-        switch contact.bodyA.node?.name {
-        case "block":
-            contact.bodyA.node?.removeFromParent()
-            let children = self.children
-            var childrenleft = false
-            for node in children {
-                if node.name == "block" {
-                    childrenleft = true
-                }
-            }
-            if !childrenleft {
-                print("you won")
-            }
-        case "bottom":
-            print("GameOver")
-        default:
-            break
-        }
-        
-        //
-        //        if contact.bodyA.node?.name == "frame" {
-        //            guard let ball = childNode(withName: "ball") else { return }
-        //            //            let ball = childNode(withName: "ball")
-        //            if ball.position.y > 9 && ball.position.y < frame.size.height - 8 {
-        //                print(frame.size.height)
-        //                print("y-Position: \(ball.position.y)")
-        //                print("Velocity: \(ball.physicsBody!.velocity)")
-        //            }
-        //        }
-        
-        if contact.bodyB.node?.name == "plate" {
-            let plate = childNode(withName: "plate")!
-            let ball = childNode(withName: "ball")!
-            let plateWidth = plate.frame.width
-            let diff = (plate.position.x - ball.position.x)
-            var diffInPercent = (abs(diff) / (plateWidth/2)) * 100
-            if diffInPercent > 50 { diffInPercent = 50 }
-            let xSpeed = customSpeed * (diffInPercent / 100)
-            ball.physicsBody?.velocity = CGVector(dx: diff > 0 ? -(xSpeed) : xSpeed, dy: customSpeed * ((100 - diffInPercent) / 100))
-        }
+        print("contact")
+        stateMachine.state(forClass: PlayingState.self)?.contact(contact)
     }
     
     override func touchesBegan(_ touches: Set<UITouch>, with event: UIEvent?) {
-        fingerOnPlate = true
+        stateMachine.state(forClass: PlayingState.self)?.fingerOnPlate = true
     }
     
     override func touchesMoved(_ touches: Set<UITouch>, with event: UIEvent?) {
-        if fingerOnPlate {
+        if stateMachine.state(forClass: PlayingState.self)?.fingerOnPlate ?? false {
             let touch = touches.first
             let touchLocation = touch!.location(in: self)
             let previousLocation = touch!.previousLocation(in: self)
@@ -136,25 +63,43 @@ class GameScene: SKScene, SKPhysicsContactDelegate {
     }
     
     override func touchesEnded(_ touches: Set<UITouch>, with event: UIEvent?) {
-        fingerOnPlate = false
+        stateMachine.enterNextState()
+        stateMachine.state(forClass: PlayingState.self)?.fingerOnPlate = false
     }
     
     override func update(_ currentTime: TimeInterval) {
-        customSpeed += 1/20
-        //        guard let ball = childNode(withName: "ball") else { return }
-        //        guard let physicsBody = ball.physicsBody else {return}
-        //        physicsBody.velocity.dx *= 1.00005
-        //        physicsBody.velocity.dy *= 1.00005
+        stateMachine.update(deltaTime: currentTime)
     }
     
-    func checkForGlitch() {
-        guard let ball = childNode(withName: "ball") else { return }
+    func setupWorld() {
+        self.name = "frame"
+        self.physicsBody = SKPhysicsBody(edgeLoopFrom: self.frame)
+        self.physicsBody?.categoryBitMask = 2
+        self.physicsBody?.collisionBitMask = 1
+        self.physicsBody?.contactTestBitMask = 3
+        let bottomRect = CGRect(x: frame.origin.x, y: frame.origin.y, width: frame.size.width, height: 0.1)
+        let bottom = SKNode()
+        bottom.name = "bottom"
+        bottom.physicsBody = SKPhysicsBody(edgeLoopFrom: bottomRect)
+        addChild(bottom)
         
-        if ball.physicsBody?.velocity.dx == 0.0 {
-            ball.physicsBody?.velocity.dx = -xVelo
-        } else {
-            xVelo = ball.physicsBody!.velocity.dx
+        Utils.shared.setUpPhysicsbody(body: self.physicsBody, isDynamic: false, setRestitutionTo: 1)
+        let plate = Block(texture: nil, color: UIColor.yellow, width: 80, height: 15, x: Int(UIScreen.main.bounds.width) / 2, y: 20, name: "plate")
+        addChild(plate)
+        Utils.shared.setUpPhysicsbody(body: plate.physicsBody, isDynamic: false, setRestitutionTo: 1)
+    }
+    
+    func removeBlocks() {
+        for node in children {
+            if node.name == "block" {
+                node.removeFromParent()
+            }
         }
     }
+    
+    func reset() {
+        childNode(withName: "ball")?.position = CGPoint(x: frame.midX, y: frame.midY)
+        childNode(withName: "plate")?.position = CGPoint(x: Int(UIScreen.main.bounds.width) / 2, y: 20)
+        stateMachine.state(forClass: PlayingState.self)?.customSpeed = 300
+    }
 }
-

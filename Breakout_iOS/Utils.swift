@@ -44,7 +44,21 @@ struct Utils {
         blockWidth -= 3
     }
     
+    mutating func clearCoordinates() {
+        xCoordinates.removeAll()
+        yCoordinates.removeAll()
+    }
+    
     func createBlock(index: Int, outerIndex: Int) -> SKSpriteNode {
         return Block(texture: nil, color: UIColor.white, width: Double(blockWidth - 1), height: 10, x: xCoordinates[index], y: yCoordinates[outerIndex], name: "block")
+    }
+    
+    func createLabel(text: String, name: String) -> SKLabelNode {
+        let label = SKLabelNode(text: text)
+        label.name = name
+        label.position = CGPoint(x: UIScreen.main.bounds.width / 2, y: UIScreen.main.bounds.height / 2)
+        label.zPosition = 4
+        label.setScale(0.0)
+        return label
     }
 }
