@@ -15,12 +15,12 @@ struct Utils {
     var blockWidth = 0
     static var shared: Utils = Utils()
     
-    func setUpPhysicsbody(body: SKPhysicsBody?, isDynamic: Bool, setRestitutionTo restitution: CGFloat) {
+    func setUpPhysicsbody(body: SKPhysicsBody?, isDynamic: Bool, setRestitutionTo restitution: CGFloat, affectedByGravity: Bool = false) {
         if let body = body {
             body.restitution = restitution
             body.isDynamic = isDynamic
             body.friction = 0
-            body.affectedByGravity = false
+            body.affectedByGravity = affectedByGravity
             body.allowsRotation = false
             body.linearDamping = 0
             body.angularDamping = 0

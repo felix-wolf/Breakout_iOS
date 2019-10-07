@@ -41,45 +41,92 @@ class PlayingState: BreakoutState {
     
     override func update(deltaTime seconds: TimeInterval) {
         customSpeed += 1/20
+        checkForGlitch()
     }
     
     func contact(_ contact: SKPhysicsContact) {
-        checkForGlitch()
         
-        let name = contact.bodyA.node?.name == "ball" ? contact.bodyB.node?.name : contact.bodyA.node?.name
+        var specificNode: SKNode
+        
+        if contact.bodyA.node?.name == "ball" {
+            specificNode = contact.bodyB.node!
+        } else if contact.bodyB.node?.name == "ball" {
+            specificNode = (contact.bodyA.node)!
+        } else if contact.bodyA.node?.name == "item" {
+            specificNode = contact.bodyA.node!
+        } else if contact.bodyB.node?.name == "item" {
+            specificNode = contact.bodyA.node!
+        } else {
+            specificNode = contact.bodyA.node!
+            print("used this")
+        }
+        
+//        let nodeThatsNotBall = contact.bodyA.node?.name == "ball" ? contact.bodyB.node : contact.bodyA.node
+        let name = specificNode.name
         
         switch name {
         case "block":
-            name == contact.bodyA.node?.name ? contact.bodyA.node?.removeFromParent() : contact.bodyB.node?.removeFromParent()
-            let children = game.children
-            var childrenleft = false
-            for node in children {
-                if node.name == "block" {
-                    childrenleft = true
-                }
-            }
-            if !childrenleft {
-                stateMachine?.enter(WonState.self)
-            }
+            collisionWithBlock(node: specificNode)
         case "bottom":
-            stateMachine?.enter(GameOverState.self)
+            collisionWithBottom()
         case "plate":
-            let plate = game.childNode(withName: "plate")!
-            let ball = game.childNode(withName: "ball")!
-            let plateWidth = plate.frame.width
-            let diff = (plate.position.x - ball.position.x)
-            var diffInPercent = (abs(diff) / (plateWidth/2)) * 100
-            if diffInPercent > 70 { diffInPercent = 70 }
-            let xSpeed = customSpeed * (diffInPercent / 100)
-//            ball.physicsBody?.velocity = CGVector(dx: diff > 0 ? -(xSpeed) : xSpeed, dy: customSpeed * ((100 - diffInPercent) / 100))
-            ball.physicsBody?.velocity = CGVector(dx: diff > 0 ? -(xSpeed) : xSpeed, dy: customSpeed)
+            collisionWithPlate()
+        case "item":
+            collisionWithItem(node: specificNode)
         default:
             break
         }
     }
     
+    func collisionWithBlock(node: SKNode) {
+        node.removeFromParent()
+        
+        if let block = node as? Block {
+            print(block.hasItem)
+            if block.hasItem {
+                let item = BreakoutItem(type: block.item, containingBlock: block, game: game, color: UIColor.green)
+                game.addChild(item)
+                item.physicsBody?.velocity.dy = -200
+            }
+        }
+        
+        let children = game.children
+        var childrenleft = false
+        for node in children {
+            if node.name == "block" {
+                childrenleft = true
+            }
+        }
+        if !childrenleft {
+            stateMachine?.enter(WonState.self)
+        }
+    }
+    
+    func collisionWithBottom() {
+        stateMachine?.enter(GameOverState.self)
+    }
+    
+    func collisionWithPlate() {
+        let plate = game.childNode(withName: "plate")!
+        let ball = game.childNode(withName: "ball")!
+        let plateWidth = plate.frame.width
+        let diff = (plate.position.x - ball.position.x)
+        var diffInPercent = (abs(diff) / (plateWidth/2)) * 100
+        if diffInPercent > 70 { diffInPercent = 70 }
+        let xSpeed = customSpeed * (diffInPercent / 100)
+        //            ball.physicsBody?.velocity = CGVector(dx: diff > 0 ? -(xSpeed) : xSpeed, dy: customSpeed * ((100 - diffInPercent) / 100))
+        ball.physicsBody?.velocity = CGVector(dx: diff > 0 ? -(xSpeed) : xSpeed, dy: customSpeed)
+    }
+    
+    func collisionWithItem(node: SKNode) {
+        if let item = node as? BreakoutItem {
+            item.activate()
+            item.removeFromParent()
+        }
+    }
+    
     func checkForGlitch() {
-        if ball.physicsBody?.velocity.dx == 0.0 {
+        if ball.physicsBody?.velocity.dx == -0.0 {
             ball.physicsBody?.velocity.dx = -xVelo
         } else {
             xVelo = ball.physicsBody!.velocity.dx

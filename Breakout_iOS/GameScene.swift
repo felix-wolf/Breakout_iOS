@@ -29,7 +29,7 @@ class GameScene: SKScene, SKPhysicsContactDelegate {
             ])
         
         physicsWorld.contactDelegate = self
-        physicsWorld.gravity = CGVector(dx: 0, dy: 0)
+        physicsWorld.gravity = CGVector(dx: 0, dy: -9.8)
         let gameOverMessage = Utils.shared.createLabel(text: "Game over!", name: "gameOver")
         let tapToPlayMessage = Utils.shared.createLabel(text: "Tap to Play", name: "tapToPlay")
         let youWonMessage = Utils.shared.createLabel(text: "You won!", name: "youWon")
@@ -41,7 +41,6 @@ class GameScene: SKScene, SKPhysicsContactDelegate {
     }
     
     func didBegin(_ contact: SKPhysicsContact) {
-        print("contact")
         stateMachine.state(forClass: PlayingState.self)?.contact(contact)
     }
     

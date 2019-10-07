@@ -38,6 +38,8 @@ class Ball: SKSpriteNode {
         self.physicsBody = SKPhysicsBody(rectangleOf: CGSize(width: width, height: height))
         Utils.shared.setUpPhysicsbody(body: self.physicsBody, isDynamic: true, setRestitutionTo: 1)
         self.physicsBody?.contactTestBitMask = (self.physicsBody?.collisionBitMask)!
+        print(physicsBody?.contactTestBitMask)
+        print(physicsBody?.collisionBitMask)
 //        self.physicsBody?.categoryBitMask = 1
 //        self.physicsBody?.collisionBitMask = 2
 //        self.physicsBody?.contactTestBitMask = 3

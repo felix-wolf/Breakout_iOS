@@ -12,10 +12,12 @@ import Foundation
 class Block: SKSpriteNode {
     
     var hasItem = false
-    var item: ItemType? = nil
+    var item: ItemType = .none
     
     init(texture: SKTexture?, color: UIColor, width: Double, height: Double, x: Int, y: Int, name: String) {
-        let num = Int.random(in: 1...10)
+
+        let num = Int.random(in: 1...6)//10)
+        print(num)
         if num == 5 {
             hasItem = true
             item = ItemType.randomValue()
@@ -27,8 +29,6 @@ class Block: SKSpriteNode {
         Utils.shared.setUpPhysicsbody(body: self.physicsBody, isDynamic: false, setRestitutionTo: 1)
         self.physicsBody?.categoryBitMask = 2
         self.physicsBody?.collisionBitMask = 0
-        
-
     }
     
     required init?(coder aDecoder: NSCoder) {
