@@ -8,6 +8,16 @@
 
 import Foundation
 import SpriteKit
+
+public enum Object {
+    case Block
+    case Plate
+    case Item
+    case Frame
+    case Bottom
+    case Ball
+}
+
 struct Utils {
     
     var xCoordinates: [Int] = []
@@ -15,7 +25,7 @@ struct Utils {
     var blockWidth = 0
     static var shared: Utils = Utils()
     
-    func setUpPhysicsbody(body: SKPhysicsBody?, isDynamic: Bool, setRestitutionTo restitution: CGFloat, affectedByGravity: Bool = false) {
+    func setUpPhysicsbody(body: SKPhysicsBody?, isDynamic: Bool, setRestitutionTo restitution: CGFloat, objectType: Object, affectedByGravity: Bool = false) {
         if let body = body {
             body.restitution = restitution
             body.isDynamic = isDynamic
@@ -24,7 +34,35 @@ struct Utils {
             body.allowsRotation = false
             body.linearDamping = 0
             body.angularDamping = 0
+            
+            switch objectType {
+            case .Block:
+                body.categoryBitMask = UInt32(Constants.collidable + Constants.block)
+                body.collisionBitMask = UInt32(Constants.statics)
+                body.contactTestBitMask = UInt32(Constants.collidable + Constants.block)
+            case .Plate:
+                body.categoryBitMask = UInt32(Constants.plate + Constants.collidable)
+                body.collisionBitMask = UInt32(Constants.statics)
+                body.contactTestBitMask = UInt32(Constants.collidable + Constants.item + Constants.ball)
+            case .Item:
+                body.categoryBitMask = UInt32(Constants.item)
+                body.contactTestBitMask = UInt32(Constants.item)
+                body.collisionBitMask = UInt32(Constants.ignore)
+            case .Frame:
+                body.categoryBitMask = UInt32(Constants.collidable + Constants.statics + Constants.frame)
+                body.collisionBitMask = UInt32(Constants.statics)
+                body.contactTestBitMask = UInt32(Constants.collidable + Constants.frame)
+            case .Bottom:
+                body.categoryBitMask = UInt32(Constants.bottom)
+                body.collisionBitMask = UInt32(Constants.ignore)
+                body.contactTestBitMask = UInt32(Constants.ball)
+            case .Ball:
+                body.categoryBitMask = UInt32(Constants.collidable + Constants.ball)
+                body.contactTestBitMask = UInt32(Constants.collidable + Constants.ball)
+                body.collisionBitMask = UInt32(Constants.collidable + Constants.ball)
+            }
         }
+        
     }
     
     mutating func setUpXCoordinates(amountOfBlocksPerCollumn: Int, amountOfBlocksPerRow: Int) {

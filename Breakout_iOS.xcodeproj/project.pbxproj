@@ -69,14 +69,6 @@
 			path = Extensions;
 			sourceTree = "<group>";
 		};
-		2E2BEADD23490A65009FF89B /* Items */ = {
-			isa = PBXGroup;
-			children = (
-				2E2BEAE023490B0B009FF89B /* BreakoutItem.swift */,
-			);
-			path = Items;
-			sourceTree = "<group>";
-		};
 		2E5CC08622A0306E00C09D63 = {
 			isa = PBXGroup;
 			children = (
@@ -100,7 +92,7 @@
 				2E2BEADE23490AD0009FF89B /* GameScene.sks */,
 				2E5CC09822A0306E00C09D63 /* GameScene.swift */,
 				2E5CC09A22A0306E00C09D63 /* GameViewController.swift */,
-				2E2BEADD23490A65009FF89B /* Items */,
+				2E2BEAE023490B0B009FF89B /* BreakoutItem.swift */,
 				2E2BEADA2348EE4D009FF89B /* Extensions */,
 				2ED6B68522B671D700DB117D /* Objects */,
 				2EA71F7622C27AB7007785F0 /* Game States */,

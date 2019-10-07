@@ -17,7 +17,6 @@ class Block: SKSpriteNode {
     init(texture: SKTexture?, color: UIColor, width: Double, height: Double, x: Int, y: Int, name: String) {
 
         let num = Int.random(in: 1...6)//10)
-        print(num)
         if num == 5 {
             hasItem = true
             item = ItemType.randomValue()
@@ -25,10 +24,12 @@ class Block: SKSpriteNode {
         super.init(texture: texture, color: color, size: CGSize(width: width, height: height))
         self.name = name
         self.position = CGPoint(x: x, y: y)
+        self.zPosition = 0
         self.physicsBody = SKPhysicsBody(rectangleOf: CGSize(width: width, height: height))
-        Utils.shared.setUpPhysicsbody(body: self.physicsBody, isDynamic: false, setRestitutionTo: 1)
-        self.physicsBody?.categoryBitMask = 2
-        self.physicsBody?.collisionBitMask = 0
+        Utils.shared.setUpPhysicsbody(body: self.physicsBody, isDynamic: false, setRestitutionTo: 1, objectType: .Block)
+        
+//        self.physicsBody?.categoryBitMask = 2
+//        self.physicsBody?.collisionBitMask = 0
     }
     
     required init?(coder aDecoder: NSCoder) {

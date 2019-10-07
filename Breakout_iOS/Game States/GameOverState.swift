@@ -20,6 +20,11 @@ class GameOverState: BreakoutState {
     }
     
     override func didEnter(from previousState: GKState?) {
+        for node in game.children {
+            if node.name == "ball" {
+                node.removeFromParent()
+            }
+        }
         game.childNode(withName: "gameOver")?.run(game.scaleUp)
     }
     

@@ -11,10 +11,6 @@ import GameplayKit
 
 class GameScene: SKScene, SKPhysicsContactDelegate {
     
-//    let ballCategory: UInt32 = 0x1 << 0
-//    let botvarCategory: UInt32 = 0x1 << 1
-//    let blockCategory: UInt32 = 0x1 << 2
-//    let plateCategory: UInt32 = 0x1 << 3
     var stateMachine: GKStateMachine!
     let scaleUp = SKAction.scale(to: 2.0, duration: 0.25)
     let scaleDown = SKAction.scale(to: 0, duration: 0.25)
@@ -74,19 +70,19 @@ class GameScene: SKScene, SKPhysicsContactDelegate {
     func setupWorld() {
         self.name = "frame"
         self.physicsBody = SKPhysicsBody(edgeLoopFrom: self.frame)
-        self.physicsBody?.categoryBitMask = 2
-        self.physicsBody?.collisionBitMask = 1
-        self.physicsBody?.contactTestBitMask = 3
+        Utils.shared.setUpPhysicsbody(body: self.physicsBody, isDynamic: false, setRestitutionTo: 1, objectType: .Frame)
+        
         let bottomRect = CGRect(x: frame.origin.x, y: frame.origin.y, width: frame.size.width, height: 0.1)
         let bottom = SKNode()
         bottom.name = "bottom"
         bottom.physicsBody = SKPhysicsBody(edgeLoopFrom: bottomRect)
+        
         addChild(bottom)
         
-        Utils.shared.setUpPhysicsbody(body: self.physicsBody, isDynamic: false, setRestitutionTo: 1)
         let plate = Block(texture: nil, color: UIColor.yellow, width: 80, height: 15, x: Int(UIScreen.main.bounds.width) / 2, y: 20, name: "plate")
+        Utils.shared.setUpPhysicsbody(body: plate.physicsBody, isDynamic: false, setRestitutionTo: 1, objectType: .Plate)
+        
         addChild(plate)
-        Utils.shared.setUpPhysicsbody(body: plate.physicsBody, isDynamic: false, setRestitutionTo: 1)
     }
     
     func removeBlocks() {
